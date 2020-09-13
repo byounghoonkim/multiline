@@ -1,5 +1,5 @@
 multiline
----
+=========
 
 Small library to print multiple lines for job status from goroutines.
 
