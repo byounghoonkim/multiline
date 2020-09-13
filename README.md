@@ -3,13 +3,17 @@ multiline
 
 Small library to print multiple lines for job status from goroutines.
 
+[![asciicast](https://asciinema.org/a/UX57WjsHOHqO9q3o7EC2ZTd8V.svg)](https://asciinema.org/a/UX57WjsHOHqO9q3o7EC2ZTd8V)
+
 ## Quick Started
 
 Install.
 ```
 go get github.com/byounghoonkim/multiline
 ```
-Example Coce.
+
+
+Example Code.
 
 ```
 package main
