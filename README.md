@@ -15,7 +15,7 @@ go get github.com/byounghoonkim/multiline
 
 Example Code.
 
-```
+``` golang
 package main
 
 import (
