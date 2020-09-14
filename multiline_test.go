@@ -27,15 +27,15 @@ func TestMultiLine(t *testing.T) {
 		go func(line *Line) {
 			defer line.Close()
 
-			line.WriteS("🚚 Preparing ...")
+			fmt.Fprint(line, "🚚 Preparing ...")
 			time.Sleep(time.Duration(rand.Intn(3000)) * time.Millisecond)
 
 			for j := 0; j < 10; j++ {
-				line.WriteS("⛏️  " + msgList[rand.Intn(len(msgList))])
+				fmt.Fprintf(line, "⛏️  %s", msgList[rand.Intn(len(msgList))])
 				time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
 			}
 
-			line.WriteS("✅ DONE")
+			fmt.Fprint(line, "✅ DONE")
 		}(line)
 	}
 

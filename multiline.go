@@ -7,7 +7,6 @@ import (
 
 type MultiLine struct {
 	lines []*Line
-	out   chan string
 }
 
 func New() *MultiLine {
@@ -17,14 +16,12 @@ func New() *MultiLine {
 func (m *MultiLine) GetLine(prefix string) *Line {
 	if m.lines == nil {
 		m.lines = []*Line{}
-		m.out = make(chan string)
 	}
 
 	l := &Line{
 		prefix:  prefix,
 		lineNum: len(m.lines),
 		in:      make(chan string),
-		out:     m.out,
 	}
 
 	m.lines = append(m.lines, l)
@@ -38,21 +35,23 @@ func (m *MultiLine) Print() error {
 	}
 	fmt.Printf("\x1b[%dA\r", len(m.lines)+1)
 
+	out := make(chan string)
+
 	wg := sync.WaitGroup{}
-	for _, l := range m.lines {
+	for _, line := range m.lines {
 		wg.Add(1)
-		go func(myl *Line) {
+		go func(line *Line) {
 			defer wg.Done()
-			myl.Read()
-		}(l)
+			line.Read(out)
+		}(line)
 	}
 
 	go func() {
 		wg.Wait()
-		close(m.out)
+		close(out)
 	}()
 
-	for s := range m.out {
+	for s := range out {
 		fmt.Printf(s)
 	}
 
@@ -64,7 +63,6 @@ type Line struct {
 	prefix  string
 	lineNum int
 	in      chan string
-	out     chan string
 }
 
 func (l *Line) Write(b []byte) (int, error) {
@@ -81,12 +79,12 @@ func (l *Line) Close() {
 	close(l.in)
 }
 
-func (l *Line) Read() error {
+func (l *Line) Read(out chan<- string) error {
 	for s := range l.in {
 		clearline := "\x1b[K"
 		up := fmt.Sprintf("\x1b[%dA\r", l.lineNum+1)
 		down := fmt.Sprintf("\x1b[%dB", l.lineNum+1)
-		l.out <- fmt.Sprint(down, clearline, l.prefix, s, up)
+		out <- fmt.Sprint(down, clearline, l.prefix, s, up)
 	}
 	return nil
 }
