@@ -30,10 +30,9 @@ func (m *MultiLine) GetLine(prefix string) *Line {
 
 func (m *MultiLine) Print() error {
 	for i := 0; i < len(m.lines); i++ {
-		// make blank (lines count) * line
-		fmt.Println("")
+		// make initial (lines count) * line
+		fmt.Println(m.lines[i].prefix)
 	}
-	fmt.Printf("\x1b[%dA\r", len(m.lines)+1)
 
 	out := make(chan string)
 
@@ -42,7 +41,7 @@ func (m *MultiLine) Print() error {
 		wg.Add(1)
 		go func(line *Line) {
 			defer wg.Done()
-			line.Read(out)
+			line.Read(out, len(m.lines))
 		}(line)
 	}
 
@@ -55,7 +54,6 @@ func (m *MultiLine) Print() error {
 		fmt.Printf(s)
 	}
 
-	fmt.Printf("\x1b[%dB", len(m.lines)+1)
 	return nil
 }
 
@@ -79,12 +77,13 @@ func (l *Line) Close() {
 	close(l.in)
 }
 
-func (l *Line) Read(out chan<- string) error {
+func (l *Line) Read(out chan<- string, lineTotal int) error {
 	for s := range l.in {
+		move := lineTotal - l.lineNum
 		clearline := "\x1b[K"
-		up := fmt.Sprintf("\x1b[%dA\r", l.lineNum+1)
-		down := fmt.Sprintf("\x1b[%dB", l.lineNum+1)
-		out <- fmt.Sprint(down, clearline, l.prefix, s, up)
+		up := fmt.Sprintf("\x1b[%dA\r", move)
+		down := fmt.Sprintf("\x1b[%dB\r", move)
+		out <- fmt.Sprint(up, clearline, l.prefix, s, down)
 	}
 	return nil
 }
