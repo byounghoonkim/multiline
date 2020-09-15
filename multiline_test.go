@@ -1,10 +1,12 @@
-package multiline
+package multiline_test
 
 import (
 	"fmt"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/byounghoonkim/multiline"
 )
 
 var msgList = []string{
@@ -20,11 +22,11 @@ var msgList = []string{
 }
 
 func TestMultiLine(t *testing.T) {
-	ml := New()
+	ml := multiline.New()
 
 	for i := 0; i < 10; i++ {
 		line := ml.GetLine(fmt.Sprintf("%d job - ", i))
-		go func(line *Line) {
+		go func(line *multiline.Line) {
 			defer line.Close()
 
 			fmt.Fprint(line, "🚚 Preparing ...")
