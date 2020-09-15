@@ -5,6 +5,8 @@ import (
 	"sync"
 )
 
+var std = New()
+
 type MultiLine struct {
 	lines []*Line
 }
@@ -13,6 +15,7 @@ func New() *MultiLine {
 	return &MultiLine{}
 }
 
+func GetLine(prefix string) *Line { return std.GetLine(prefix) }
 func (m *MultiLine) GetLine(prefix string) *Line {
 	if m.lines == nil {
 		m.lines = []*Line{}
@@ -28,6 +31,7 @@ func (m *MultiLine) GetLine(prefix string) *Line {
 	return l
 }
 
+func Print() error { return std.Print() }
 func (m *MultiLine) Print() error {
 	for i := 0; i < len(m.lines); i++ {
 		// make initial (lines count) * line
@@ -53,6 +57,8 @@ func (m *MultiLine) Print() error {
 	for s := range out {
 		fmt.Printf(s)
 	}
+
+	m.lines = nil
 
 	return nil
 }
